@@ -1,0 +1,16 @@
+# ───────────────────────────────────────────────
+# SimpleHomes by AlzyIT v1.0
+# Configuration file for home system.
+# ───────────────────────────────────────────────
+
+settings:
+  max-thread-pool: 2
+  storage-type: SQLITE #SQLite or MYSQL
+
+database:
+  host: "localhost"
+  username: "root"
+  password: "CHANGEME"
+  port: 3306
+  database: simplehomes
+  max-pool: 10
