@@ -1,24 +1,16 @@
 package it.alzy.simplehomes.storage.impl;
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-
-import org.bukkit.Bukkit;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import it.alzy.simplehomes.SimpleHomes;
 import it.alzy.simplehomes.records.Home;
 import it.alzy.simplehomes.storage.IStorage;
+import org.bukkit.Bukkit;
+
+import java.io.File;
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 public class SQLiteStorage implements IStorage {
 
@@ -30,16 +22,17 @@ public class SQLiteStorage implements IStorage {
         this.plugin = plugin;
         this.executor = plugin.getExecutor();
 
-        File dataFolder = plugin.getDataFolder();
-        if(!dataFolder.exists()) dataFolder.mkdirs();
-        File db = new File(dataFolder, "Players.db");
+        File dbFile = new File(plugin.getDataFolder(), "Players.db");
+        if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
+
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:sqlite:" + db.getPath());
+        config.setJdbcUrl("jdbc:sqlite:" + dbFile.getPath());
         config.setMaximumPoolSize(10);
         config.setConnectionTestQuery("SELECT 1");
         config.setPoolName("SimpleHomes-SQLite-Pool");
         config.setConnectionTimeout(5000);
         this.dataSource = new HikariDataSource(config);
+
         init();
     }
 
@@ -47,99 +40,92 @@ public class SQLiteStorage implements IStorage {
         return dataSource.getConnection();
     }
 
-    public void init() {
-        plugin.getLogger().info("Using SQLITE as storage system");
+    private void init() {
+        plugin.getLogger().info("Using SQLite as storage system");
         executor.execute(() -> {
             String query = """
-                    CREATE TABLE IF NOT EXISTS users(
-                        home_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                        uuid VARCHAR(36),
-                        homeName VARCHAR(16),
-                        location TEXT
+                    CREATE TABLE IF NOT EXISTS users (
+                        home_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        uuid TEXT NOT NULL,
+                        homeName TEXT NOT NULL,
+                        location TEXT NOT NULL
                     )
                     """;
-            try(Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
+            try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
                 stmt.execute(query);
-            } catch(SQLException e) {
-                plugin.getLogger().severe("Couldn't create user table, Self disabling");
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Failed to create users table: " + e.getMessage());
                 Bukkit.getPluginManager().disablePlugin(plugin);
             }
         });
     }
 
-
+    @Override
     public void createHome(UUID ownerID, Home home) {
         executor.execute(() -> {
-            String query = "INSERT INTO users(uuid, homeName, location) VALUES (?,?,?)";
-            try(PreparedStatement ps = getConnection().prepareStatement(query)) {
+            String query = "INSERT INTO users(uuid, homeName, location) VALUES (?, ?, ?)";
+            try (Connection conn = getConnection();
+                 PreparedStatement ps = conn.prepareStatement(query)) {
+
                 ps.setString(1, ownerID.toString());
                 ps.setString(2, home.homeName());
                 ps.setString(3, home.serialize());
                 ps.executeUpdate();
-            } catch(SQLException e) {
-                plugin.getLogger().severe("Couldn't save a player's home: " + e.getMessage());
-                plugin.getLogger().info(e.getMessage());
+
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Failed to save home for " + ownerID + ": " + e.getMessage());
             }
         });
     }
 
+    @Override
     public void deleteHome(UUID uuid, String homeName) {
         executor.execute(() -> {
-            String query = "DELETE FROM users WHERE homeName = ? AND uuid = ?";
-            try(PreparedStatement ps = getConnection().prepareStatement(query)) {
-                 ps.setString(1, homeName);
-                 ps.setString(2, uuid.toString());
-                 ps.executeUpdate();
-            } catch(SQLException e) {
-                plugin.getLogger().severe("Couldn't delete a player's home: " + e.getMessage());
+            String query = "DELETE FROM users WHERE uuid = ? AND homeName = ?";
+            try (Connection conn = getConnection();
+                 PreparedStatement ps = conn.prepareStatement(query)) {
+
+                ps.setString(1, uuid.toString());
+                ps.setString(2, homeName);
+                ps.executeUpdate();
+
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Failed to delete home '" + homeName + "' for " + uuid + ": " + e.getMessage());
             }
         });
     }
-
 
     @Override
     public void load(UUID uuid) {
         executor.execute(() -> {
-            List<Home> temp = new ArrayList<>();
+            List<Home> homes = new ArrayList<>();
             String query = "SELECT homeName, location FROM users WHERE uuid = ?";
-            try(PreparedStatement ps = getConnection().prepareStatement(query)) {
+
+            try (Connection conn = getConnection();
+                 PreparedStatement ps = conn.prepareStatement(query)) {
+
                 ps.setString(1, uuid.toString());
-                try(ResultSet rs = ps.executeQuery()){
-                    while(rs.next()) {
-                        String homeName = rs.getString("homeName");
-                        String location = rs.getString("location");
-                        if(location == null || location.isEmpty()) continue;
-                        String[] parts = location.split(":");
-                        if(parts.length < 6) continue;
-                        String worldName = parts[0];
-                        double x = Double.parseDouble(parts[1]);
-                        double y = Double.parseDouble(parts[2]);
-                        double z = Double.parseDouble(parts[3]);
-                        float yaw = Float.parseFloat(parts[4]);
-                        float pitch = Float.parseFloat(parts[5]);
-                        Home home = new Home(homeName, worldName, x, y, z, yaw, pitch);
-                        temp.add(home);
-                        plugin.getCache().put(uuid, temp);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Home home = Home.deserialize(rs.getString("homeName"), rs.getString("location"));
+                        if (home != null) homes.add(home);
                     }
                 }
-            } catch(SQLException e) {
-                plugin.getLogger().severe("Couldn't load a player's home");
-                plugin.getLogger().info(e.getMessage());
+
+                plugin.getCache().put(uuid, homes);
+
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Failed to load homes for " + uuid + ": " + e.getMessage());
             }
         });
     }
 
-    
+    @Override
     public void close() {
-        plugin.getLogger().info("Closing SQLITE connection");
-        try {
-            if(getConnection() != null && !getConnection().isClosed()) {
-                getConnection().close();
-            }
-        } catch(SQLException e) {
-            plugin.getLogger().severe("Couldn't close connection: " + e.getMessage());
-
+        plugin.getLogger().info("Shutting down SQLite connection pool");
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
         }
     }
-
 }

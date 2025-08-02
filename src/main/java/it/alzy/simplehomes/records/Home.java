@@ -27,15 +27,13 @@ public record Home(String homeName, String worldName, double x, double y, double
         return new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
     }
 
-    public String serialize() {
-        return String.join(":", 
-            worldName,
-            String.valueOf(x),
-            String.valueOf(y),
-            String.valueOf(z),
-            String.valueOf(yaw),
-            String.valueOf(pitch)        
-        );
+    public String serialize() { 
+        return worldName + ":" +
+            String.valueOf(x) + ":" +
+            String.valueOf(y) + ":" +
+            String.valueOf(z) + ":" +
+            String.valueOf(yaw) + ":" +
+            String.valueOf(pitch) + ":";  
     }
 
 }

@@ -1,7 +1,6 @@
-name: SimpleEconomy
+name: SimpleHomes
 version: ${version}
-main: it.alzy.simpleeconomy.simpleEconomy.SimpleEconomy
+main: it.alzy.simplehomes.SimpleHomes
 api-version: '1.21'
 author: 'Alzy'
-prefix: SE
-softdepend: ["Vault", "PlaceholderAPI"]
+prefix: SH

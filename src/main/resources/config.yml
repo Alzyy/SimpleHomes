@@ -1,16 +1,19 @@
-# ───────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # SimpleHomes by AlzyIT v1.0
-# Configuration file for home system.
-# ───────────────────────────────────────────────
+# Configuration file for the home system
+# ─────────────────────────────────────────────────────────────
 
+# General plugin settings
 settings:
-  max-thread-pool: 2
-  storage-type: SQLITE #SQLite or MYSQL
+  max-thread-pool: 2               # Maximum number of threads used by the system
+  storage-type: SQLITE             # Available options: SQLITE or MYSQL
+  check-for-update: false          # Automatically check for plugin updates
 
+# Database settings (used only if storage-type is MYSQL)
 database:
-  host: "localhost"
-  username: "root"
-  password: "CHANGEME"
-  port: 3306
-  database: simplehomes
-  max-pool: 10
+  host: "localhost"                # MySQL server address
+  port: 3306                       # MySQL server port
+  username: "root"                 # MySQL username
+  password: "CHANGEME"             # MySQL password (change this!)
+  database: simplehomes            # Name of the database to use
+  max-pool: 10                     # Maximum number of connections in the pool

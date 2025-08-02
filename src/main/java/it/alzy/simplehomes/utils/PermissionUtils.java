@@ -6,7 +6,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 public class PermissionUtils {
     
 
-    public int getHomeLimit(Player player) {
+    public static int getHomeLimit(Player player) {
         return player.getEffectivePermissions().stream()
         .map(PermissionAttachmentInfo::getPermission)
         .filter(perm -> perm.startsWith("simplehomes.limit."))
