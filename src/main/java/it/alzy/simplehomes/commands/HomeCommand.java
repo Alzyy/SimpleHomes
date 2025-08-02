@@ -27,12 +27,15 @@ public class HomeCommand extends BaseCommand {
     @Default
     public void root(Player player) {
         player.sendMessage(MiniMessage.miniMessage().deserialize(
-                "<gradient:#22C55E:#16A34A><bold>✔ SimpleHomes</bold></gradient> <gray>| Version </gray><white>"
-                + plugin.getPluginMeta().getVersion() + "</white>\n"
-                + "<gray>Developed with ❤ by </gray>"
-                + "<hover:show_text:'Click to view my profile!'><click:open_url:'https://www.spigotmc.org/members/alzyit.1581572/'>"
-                + "<gradient:#A1A1AA:#71717A><bold>AlzyIT</bold></gradient></click></hover>"));
+            "<bold><gradient:#7DD3FC:#38BDF8>❖ SimpleHomes</gradient></bold> <gray>| Version </gray><white>"
+            + plugin.getPluginMeta().getVersion() + "</white>\n"
+            + "<gray>Developed with </gray><red>❤</red><gray> by </gray>"
+            + "<hover:show_text:'Click to view my Spigot profile!'>"
+            + "<click:open_url:'https://www.spigotmc.org/members/alzyit.1581572/'>"
+            + "<bold><gradient:#C084FC:#9333EA>AlzyIT</gradient></bold></click></hover>"
+        ));
     }
+
 
     @Default
     @CommandCompletion("@homes")
