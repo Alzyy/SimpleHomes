@@ -1,89 +1,89 @@
+---
 
-# SimpleEconomy
+# SimpleHomes
 
-**SimpleEconomy** is a lightweight, high-performance economy plugin for **Spigot 1.21**.  
-It supports data storage via **SQLite** or **flat file** and integrates fully with **Vault**, ensuring compatibility with other economy-based plugins.
+**SimpleHomes** is a lightweight and high-performance **home management plugin** for **Spigot 1.21**.
+It supports data storage via **MySQL** or **SQLite** and requires **no external dependencies**.
 
 ---
 
 ## 🔧 Features
 
-- Vault-compatible economy system
-- Lightweight and optimized for performance
-- Configurable data storage (SQLite or flat file)
-- Core economy commands (`/eco`, `/pay`, `/balance`)
-- Permission-based command access
+* Fast and minimal home system
+* Configurable data storage (MySQL or SQLite)
+* Simple, user-friendly commands
+* Per-player home limits via permissions
+* No external dependencies
 
 ---
 
 ## 📦 Installation
 
 1. Download the plugin `.jar` and place it in your server’s `/plugins` folder.
-2. Start or reload the server to generate the configuration files.
-3. Configure the plugin in `config.yml` to choose the preferred storage method (`sqlite` or `file`).
-4. Make sure you have **Vault** installed and a compatible permissions plugin (e.g., LuckPerms).
+2. Start or reload the server to generate configuration files.
+3. Choose your preferred storage type (`mysql` or `sqlite`) in `config.yml`.
+4. (Optional) Use a permissions plugin like **LuckPerms** to manage home limits.
 
 ---
 
 ## 💬 Commands
 
-### `/eco <set|give|remove> <player> <amount>`
-Admin command to manage a player's balance.
+### `/home <homeName>`
 
-- `/eco set Alzy 100`
-- `/eco give Steve 50`
-- `/eco remove Alex 25`
+Teleport to your saved home location.
 
-### `/pay <player> <amount>`
-Allows players to send money to each other.
+### `/homeset <homeName>`
 
-- `/pay Steve 10`
+Set your current location as your home.
+*(No permission required)*
 
-### `/balance` or `/bal`
-Shows the player's current balance.
+### `/delhome <homeName>`
 
-- `/balance`
+Delete your current home.
+*(No permission required)*
 
 ---
 
 ## 🔐 Permissions
 
-| Permission                        | Description                                |
-|----------------------------------|--------------------------------------------|
-| `simpleconomy.balance.others`    | View other players' balances               |
-| `simpleconomy.eco.set`           | Use `/eco set`                             |
-| `simpleconomy.eco.give`          | Use `/eco give`                            |
-| `simpleconomy.eco.remove`        | Use `/eco remove`                          |
-| `simpleconomy.command.reload`    | Reload the plugin                          |
+| Permission            | Description                                                           |
+| --------------------- | --------------------------------------------------------------------- |
+| `simplehomes.limit.X` | Sets the number of homes a player can set (replace `X` with a number) |
+
+> Example: `simplehomes.limit.3` allows a player to set up to 3 homes.
 
 ---
 
 ## 📁 Configuration
 
-Choose between `sqlite` or `file` storage in the plugin's `settings.yml`.  
+Configure the plugin via `config.yml`.
 Example:
 
 ```yaml
-storage-system: sqlite
-auto-save-time: 5 # In minutes
-````
+storage-type: sqlite # Options: sqlite, mysql
+
+database:
+  host: localhost
+  port: 3306
+  database: simplehomes
+  username: root
+  password: yourpassword
+```
 
 ---
 
-## ✅ Dependencies
+## ✅ Recommended Plugins
 
-* [Vault](https://www.spigotmc.org/resources/vault.34315/) (required)
-* [LuckPerms](https://luckperms.net/) or another permissions plugin (recommended)
+* [LuckPerms](https://luckperms.net/) – for managing player permissions and home limits.
 
 ---
 
 ## 📄 License
 
-GNU GPLv3 License
+GNU GPL v3 License
 
 ---
 
 Made with ❤️ by [Alzy](https://github.com/Alzyy)
 
 ---
-
