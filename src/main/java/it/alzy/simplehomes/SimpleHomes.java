@@ -42,6 +42,11 @@ public class SimpleHomes extends JavaPlugin {
         // Initialize configs
         loadConfigurations();
 
+        if (!validateInitialConfig()) {
+            getServer().getPluginManager().disablePlugin(this);;
+            return;
+        }
+
         // Initialize async thread pool
         executor = Executors.newFixedThreadPool(SettingsConfiguration.getInstance().getThreadPoolLimit());
 
@@ -60,6 +65,22 @@ public class SimpleHomes extends JavaPlugin {
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
     }
+
+    private boolean validateInitialConfig() {
+        SettingsConfiguration settings = SettingsConfiguration.getInstance();
+
+        if ("mysql".equalsIgnoreCase(settings.getStorage()) &&
+                "CHANGEME".equalsIgnoreCase(settings.getDBPassword())) {
+            getLogger().severe("==========================================");
+            getLogger().severe("⚠️  First-time MySQL setup detected!");
+            getLogger().severe("👉  Please configure a secure database password in config.yml");
+            getLogger().severe("==========================================");
+            return false;
+        }
+
+        return true;
+    }
+
 
     @Override
     public void onDisable() {
