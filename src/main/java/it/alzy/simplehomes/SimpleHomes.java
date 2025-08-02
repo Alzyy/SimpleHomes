@@ -10,8 +10,10 @@ import it.alzy.simplehomes.storage.Cache;
 import it.alzy.simplehomes.storage.IStorage;
 import it.alzy.simplehomes.storage.impl.MySQLStorage;
 import it.alzy.simplehomes.storage.impl.SQLiteStorage;
+import it.alzy.simplehomes.utils.UpdateUtils;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.aether.impl.UpdateCheck;
 
 import co.aikar.commands.PaperCommandManager;
 
@@ -60,6 +62,10 @@ public class SimpleHomes extends JavaPlugin {
 
         // Initialize storage
         loadStorage();
+
+        if(SettingsConfiguration.getInstance().checkForUpdates()) {
+            new UpdateUtils().checkForUpdates();
+        }
     }
 
     private void registerEvents() {

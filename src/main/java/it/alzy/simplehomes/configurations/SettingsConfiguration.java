@@ -45,6 +45,9 @@ public class SettingsConfiguration extends LightConfig {
         return this.fileConfiguration.getInt("database.max-pool", 10);
     }
 
+    public boolean checkForUpdates() {
+        return this.fileConfiguration.getBoolean("settings.check-for-update", true);
+    }
     public static SettingsConfiguration getInstance() {
         if(instance == null) instance = new SettingsConfiguration();
         return instance;
@@ -53,4 +56,5 @@ public class SettingsConfiguration extends LightConfig {
     public void registerConfig() {
         registerLightConfig(SimpleHomes.getInstance());
     }
+
 }
