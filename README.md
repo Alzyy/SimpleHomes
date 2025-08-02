@@ -1,4 +1,3 @@
----
 
 # SimpleHomes
 
@@ -82,7 +81,7 @@ database:
 
 GNU GPL v3 License
 
----
+
 
 Made with ❤️ by [Alzy](https://github.com/Alzyy)
 
