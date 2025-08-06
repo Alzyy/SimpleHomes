@@ -12,8 +12,9 @@ import it.alzy.simplehomes.storage.impl.MySQLStorage;
 import it.alzy.simplehomes.storage.impl.SQLiteStorage;
 import it.alzy.simplehomes.utils.UpdateUtils;
 import lombok.Getter;
+
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.aether.impl.UpdateCheck;
 
 import co.aikar.commands.PaperCommandManager;
 
@@ -34,6 +35,9 @@ public class SimpleHomes extends JavaPlugin {
 
     @Getter
     private Cache cache;
+
+    @Getter
+    private NamespacedKey homeKey;
 
     private PaperCommandManager commandManager;
 
@@ -66,6 +70,9 @@ public class SimpleHomes extends JavaPlugin {
         if(SettingsConfiguration.getInstance().checkForUpdates()) {
             new UpdateUtils().checkForUpdates();
         }
+
+        // Initialize utils
+        homeKey = new NamespacedKey(this, "homeName");
     }
 
     private void registerEvents() {
@@ -136,5 +143,10 @@ public class SimpleHomes extends JavaPlugin {
 
     private void registerCompletitions() {
         commandManager.getCommandCompletions().registerAsyncCompletion("homes", c -> cache.get(c.getPlayer().getUniqueId()).stream().map(Home::homeName).collect(Collectors.toList()));
+    }
+
+    public void reloadConfigurations() {
+        LanguageConfiguration.getInstance().reload();
+        SettingsConfiguration.getInstance().reload();
     }
 }

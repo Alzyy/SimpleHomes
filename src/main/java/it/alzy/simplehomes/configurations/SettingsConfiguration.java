@@ -1,5 +1,7 @@
 package it.alzy.simplehomes.configurations;
 
+import java.util.List;
+
 import it.alzy.simplehomes.SimpleHomes;
 import net.pino.simpleconfig.LightConfig;
 import net.pino.simpleconfig.annotations.Config;
@@ -48,6 +50,39 @@ public class SettingsConfiguration extends LightConfig {
     public boolean checkForUpdates() {
         return this.fileConfiguration.getBoolean("settings.check-for-update", true);
     }
+
+    public boolean isGuiEnabled() {
+        return this.fileConfiguration.getBoolean("gui-settings.enable-gui", true);
+    }
+
+    public String getGuiName() {
+        return this.fileConfiguration.getString("gui-settings.gui-title", "&e%player%'s Homes");
+    }
+
+    public String getBaseHeadEarth() {
+        return this.fileConfiguration.getString("gui-settings.overworld-head", "");
+    }
+    public String getBaseHeadNether() {
+        return this.fileConfiguration.getString("gui-settings.nether-head", "");
+    }
+
+    public String getBaseHeadEnd() {
+        return this.fileConfiguration.getString("gui-settings.end-head", "");
+    }
+
+    public String getHeadName() {
+        return this.fileConfiguration.getString("gui-settings.head.name", "&aHome &7(%homeName%)");
+    }
+
+    public String getGuiFiller() {
+        return this.fileConfiguration.getString("gui-settings.gui-filler", "BLACK_STAINED_GLASS");
+    }
+
+
+    public List<String> getHeadLore() {
+        return this.fileConfiguration.getStringList("gui-settings.head.lore");
+    }
+
     public static SettingsConfiguration getInstance() {
         if(instance == null) instance = new SettingsConfiguration();
         return instance;

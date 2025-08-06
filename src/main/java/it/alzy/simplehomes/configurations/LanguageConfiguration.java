@@ -24,11 +24,12 @@ public class LanguageConfiguration extends BaseConfig {
     public String HOME_LIMIT = "%prefix%&#8b5ba5You've reached your limit of %limit% homes";
     @Path("messages.home.teleported")
     public String HOME_TELEPORTED = "%prefix%&#3fcb4aYou've teleported to your home %home%";
-    @Path("message.home.unknown")
+    @Path("messages.home.unknown")
     public String HOME_UNKNOWN = "%prefix%&#ab85e1Couldn't find a home called %home%";
-    @Path("message.home.already-set")
+    @Path("messages.home.already-set")
     public String HOME_ALREADY_SET = "%prefix%&#ab6bceYou've already a home called %home%!";
-
+    @Path("messages.home.reloaded")
+    public String HOME_RELOADED = "%prefix%&#85bc36You've reloaded the configurations!";
     public static LanguageConfiguration getInstance() {
         if(instance == null) instance = new LanguageConfiguration();
         return instance;

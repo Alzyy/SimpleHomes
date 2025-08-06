@@ -7,7 +7,7 @@
 settings:
   max-thread-pool: 2               # Maximum number of threads used by the system
   storage-type: SQLITE             # Available options: SQLITE or MYSQL
-  check-for-update: false          # Automatically check for plugin updates
+  check-for-update: true          # Automatically check for plugin updates
 
 # Database settings (used only if storage-type is MYSQL)
 database:
@@ -17,3 +17,26 @@ database:
   password: "CHANGEME"             # MySQL password (change this!)
   database: simplehomes            # Name of the database to use
   max-pool: 10                     # Maximum number of connections in the pool
+
+
+gui-settings:
+  # Title of the GUI menu - shows the player's name and "Homes"
+  gui-title: "&e%player%'ѕ &fʜᴏᴍᴇѕ"
+  
+  # Player head textures for each environment
+  overworld-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTU3N2M0ZGUxZjUxYTcwNzIyMDIzZTg1NmI1NDNjZDU3MGYxZDBlZTZiOWQxNjdiNTkwMjhjZTFiYzkyZTQ1OCJ9fX0="
+  nether-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTljNmEzNzhhNzJkYTE3NTgzMWM5Mzk0ZmE0NWViNzM0M2YzMWQ3ZDA1OGZhNzZhOWE2NDZiZTAwN2I3ODg4ZCJ9fX0="
+  end-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWQxZjM4MjI2MmRiNmUxYTVjMDk1MDQ5Zjk5YTk5NDZmMDg3ZjdkNzgyYzFjYTI1ZDA4NzNlYmY1NjdlNzliZSJ9fX0="
+  
+  head:
+    # Display name of each home icon in the menu
+    name: "&#a870f7&lʜᴏᴍᴇ &8| &f%homeName%"
+    
+    # Lore = description text shown when hovering over the head
+    lore:
+      - "&#6a4c93&l• &7ᴘᴏsɪᴛɪᴏɴ: &f%x%, %y%, %z%"
+      - "&#098ebb&l• &7ᴡᴏʀʟᴅ: &f%world%"
+      - "&#cd6e0f&l• &7ᴇɴᴠɪʀᴏɴᴍᴇɴᴛ: &f%worldEnvironment%"
+      - "" # Empty line for spacing
+      - "&#1e6595&l⮞ &aʟᴇꜰᴛ-ᴄʟɪᴄᴋ &7to teleport"
+      - "&#84374b&l⮞ &cʀɪɢʜᴛ-ᴄʟɪᴄᴋ &7to delete"
