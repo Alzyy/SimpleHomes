@@ -1,18 +1,19 @@
 package it.alzy.simplehomes.utils;
 
+import it.alzy.simplehomes.SimpleHomes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatUtils {
 
@@ -22,18 +23,35 @@ public class ChatUtils {
             .build();
 
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
-    private static final PlainTextComponentSerializer PLAIN_SERIALIZER = PlainTextComponentSerializer.plainText();
 
-    private static final ConcurrentHashMap<String, Component> COMPONENT_CACHE = new ConcurrentHashMap<>(256);
-    private static final ConcurrentHashMap<String, String> PLAIN_CACHE = new ConcurrentHashMap<>(128);
+    private static final Map<String, Component> COMPONENT_CACHE = Collections.synchronizedMap(
+            new LinkedHashMap<String, Component>(128, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Component> eldest) {
+                    return size() > 512;
+                }
+            }
+    );
+    private static final Map<String, String> CONVERSION_CACHE = Collections.synchronizedMap(
+            new LinkedHashMap<String, String>(128, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+                    return size() > 512;
+                }
+            }
+    );
     private static final Component EMPTY_COMPONENT = Component.empty();
+
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
+
+    private static final String[] LEGACY_CODES = {"&0", "&1", "&2", "&3", "&4", "&5", "&6", "&7", "&8", "&9", "&a", "&b", "&c", "&d", "&e", "&f", "&k", "&l", "&m", "&n", "&o", "&r"};
+    private static final String[] MINI_TAGS = {"<black>", "<dark_blue>", "<dark_green>", "<dark_aqua>", "<dark_red>", "<dark_purple>", "<gold>", "<gray>", "<dark_gray>", "<blue>", "<green>", "<aqua>", "<red>", "<light_purple>", "<yellow>", "<white>", "<obfuscated>", "<bold>", "<strikethrough>", "<underlined>", "<italic>", "<reset>"};
 
     static {
         System.setProperty("adventure.minimessage.strict", "false");
     }
 
     public static Component parse(String message) {
-
         if (message == null || message.isEmpty()) {
             return EMPTY_COMPONENT;
         }
@@ -45,9 +63,14 @@ public class ChatUtils {
 
         Component component;
         try {
-            component = LEGACY_SERIALIZER.deserialize(message);
+            String converted = convertLegacyToMiniMessage(message);
+            component = MINI_MESSAGE.deserialize(converted);
         } catch (Exception e) {
-            component = Component.text(message);
+            try {
+                component = LEGACY_SERIALIZER.deserialize(message);
+            } catch (Exception ex) {
+                component = Component.text(message);
+            }
         }
 
         if (COMPONENT_CACHE.size() < 512) {
@@ -57,157 +80,97 @@ public class ChatUtils {
         return component;
     }
 
+    private static String convertLegacyToMiniMessage(String message) {
+        String cached = CONVERSION_CACHE.get(message);
+        if (cached != null) {
+            return cached;
+        }
+
+        StringBuilder result = new StringBuilder(message.length() + 32);
+
+        Matcher matcher = HEX_PATTERN.matcher(message);
+        int lastEnd = 0;
+
+        while (matcher.find()) {
+            result.append(message, lastEnd, matcher.start());
+            result.append("<color:#").append(matcher.group(1)).append('>');
+            lastEnd = matcher.end();
+        }
+        result.append(message, lastEnd, message.length());
+
+        String withHex = result.toString();
+
+        if (withHex.indexOf('&') == -1) {
+            if (CONVERSION_CACHE.size() < 512) {
+                CONVERSION_CACHE.put(message, withHex);
+            }
+            return withHex;
+        }
+
+        String converted = withHex;
+        for (int i = 0; i < LEGACY_CODES.length; i++) {
+            if (converted.contains(LEGACY_CODES[i])) {
+                converted = converted.replace(LEGACY_CODES[i], MINI_TAGS[i]);
+            }
+        }
+
+        if (CONVERSION_CACHE.size() < 512) {
+            CONVERSION_CACHE.put(message, converted);
+        }
+
+        return converted;
+    }
     public static void send(CommandSender sender, String message, Object... placeholders) {
-        if (sender == null || message == null || message.isEmpty()) {
-            return;
-        }
+        if (sender == null || message == null || message.isEmpty()) return;
 
-        if (placeholders.length == 0) {
-            sender.sendMessage(parse(message));
-            return;
-        }
+        final String processedMessage = applyPlaceholders(message, placeholders);
 
-        if (placeholders.length % 2 != 0) {
-            throw new IllegalArgumentException("Placeholders must be key-value pairs");
+        if (Bukkit.isPrimaryThread()) {
+            deliverMessage(sender, processedMessage);
+        } else {
+            Bukkit.getScheduler().runTask(SimpleHomes.getInstance(), () -> deliverMessage(sender, processedMessage));
         }
+    }
 
-        String processedMessage = applyPlaceholders(message, placeholders);
-        sender.sendMessage(parse(processedMessage));
+    private static void deliverMessage(CommandSender sender, String message) {
+        Component parsed = parse(message);
+        if (!SimpleHomes.getInstance().isPaper()) {
+            SimpleHomes.getInstance().getBukkitAudiences().sender(sender).sendMessage(parsed);
+        } else {
+            sender.sendMessage(parsed);
+        }
     }
 
     public static void send(CommandSender sender, String message) {
         if (sender == null || message == null || message.isEmpty()) {
             return;
         }
-        sender.sendMessage(parse(message));
+        if(Bukkit.isPrimaryThread()) {
+            sender.sendMessage(parse(message));
+        } else {
+            Bukkit.getScheduler().runTask(SimpleHomes.getInstance(), () -> sender.sendMessage(parse(message)));
+        }
     }
 
     private static String applyPlaceholders(String message, Object... placeholders) {
-        StringBuilder result = new StringBuilder(message);
+        if (placeholders == null || placeholders.length == 0) return message;
 
         for (int i = 0; i < placeholders.length; i += 2) {
             String key = String.valueOf(placeholders[i]);
             String value = String.valueOf(placeholders[i + 1]);
-
-            int index = 0;
-            while ((index = result.indexOf(key, index)) != -1) {
-                result.replace(index, index + key.length(), value);
-                index += value.length();
-            }
+            message = message.replace(key, value);
         }
-
-        return result.toString();
+        return message;
     }
 
-    public static String removeColors(String message) {
-        if (message == null || message.isEmpty()) {
-            return "";
-        }
-
-        String cached = PLAIN_CACHE.get(message);
-        if (cached != null) {
-            return cached;
-        }
-
-        String plain = PLAIN_SERIALIZER.serialize(parse(message));
-
-        if (PLAIN_CACHE.size() < 256) {
-            PLAIN_CACHE.put(message, plain);
-        }
-
-        return plain;
-    }
-
-    public static void broadcast(String message, @Nullable String permission, @Nullable Object... placeholders) {
-        if (message == null || message.isEmpty()) {
+    public static void sendActionBar(Player player, Component component) {
+        if (player == null || component == null) {
             return;
         }
-
-        String processedMessage = (placeholders != null && placeholders.length > 0)
-                ? applyPlaceholders(message, placeholders)
-                : message;
-        Component component = parse(processedMessage);
-
-        if (permission == null) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendMessage(component);
-            }
+        if (!SimpleHomes.getInstance().isPaper()) {
+            SimpleHomes.getInstance().getBukkitAudiences().player(player).sendActionBar(component);
         } else {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (player.hasPermission(permission)) {
-                    player.sendMessage(component);
-                }
-            }
-        }
-    }
-
-    public static void broadcast(String message, @Nullable String permission) {
-        broadcast(message, permission, (Object[]) null);
-    }
-
-    public static void broadcast(String message) {
-        broadcast(message, null, (Object[]) null);
-    }
-
-    public static List<String> formatList(List<String> list, Object... placeholders) {
-        if (list == null || list.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        if (placeholders.length == 0) {
-            return new ArrayList<>(list);
-        }
-
-        if (placeholders.length % 2 != 0) {
-            throw new IllegalArgumentException("Placeholders must be key-value pairs");
-        }
-
-        List<String> formatted = new ArrayList<>(list.size());
-        for (String line : list) {
-            if (line != null) {
-                formatted.add(applyPlaceholders(line, placeholders));
-            }
-        }
-        return formatted;
-    }
-
-    public static List<Component> colorList(List<String> list) {
-        if (list == null || list.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Component> colored = new ArrayList<>(list.size());
-        for (String line : list) {
-            if (line != null) {
-                colored.add(parse(line));
-            } else {
-                colored.add(EMPTY_COMPONENT);
-            }
-        }
-        return colored;
-    }
-
-    public static void sendList(CommandSender sender, List<String> messages, Object... placeholders) {
-        if (sender == null || messages == null || messages.isEmpty()) {
-            return;
-        }
-
-        for (String message : messages) {
-            if (message != null) {
-                send(sender, message, placeholders);
-            }
-        }
-    }
-
-    public static void sendComponentList(CommandSender sender, List<Component> components) {
-        if (sender == null || components == null || components.isEmpty()) {
-            return;
-        }
-
-        for (Component component : components) {
-            if (component != null) {
-                sender.sendMessage(component);
-            }
+            player.sendActionBar(component);
         }
     }
 
@@ -226,30 +189,23 @@ public class ChatUtils {
         return parse(message);
     }
 
-    public static String stripColors(String message) {
-        return removeColors(message);
+    public static CompletableFuture<Component> createComponentAsync(String message, Object... placeholders) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (message == null || message.isEmpty()) {
+                return EMPTY_COMPONENT;
+            }
+
+            String processedMessage = message;
+
+            if (placeholders.length > 0) {
+                if (placeholders.length % 2 != 0) {
+                    throw new IllegalArgumentException("Placeholders must be key-value pairs");
+                }
+                processedMessage = applyPlaceholders(processedMessage, placeholders);
+            }
+
+            return parse(processedMessage);
+        });
     }
 
-    public static boolean isValidMiniMessage(String message) {
-        if (message == null || message.isEmpty()) {
-            return true;
-        }
-
-        try {
-            MINI_MESSAGE.deserialize(message);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public static void clearCache() {
-        COMPONENT_CACHE.clear();
-        PLAIN_CACHE.clear();
-    }
-
-    public static String getCacheStats() {
-        return String.format("ChatUtils Cache - Components: %d, Plain text: %d",
-                COMPONENT_CACHE.size(), PLAIN_CACHE.size());
-    }
 }

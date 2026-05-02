@@ -11,25 +11,38 @@ import net.pino.simpleconfig.annotations.inside.Path;
 public class LanguageConfiguration extends BaseConfig {
     private static LanguageConfiguration instance = null;
 
-
     public LanguageConfiguration() {}
 
     @Path("prefix")
-    public String PREFIX = "&#3b396eѕɪᴍᴘʟᴇʜᴏᴍᴇѕ &8| ";
+    public String PREFIX = "&#ffcc00ѕɪᴍᴘʟᴇʜᴏᴍᴇѕ &8» ";
+
     @Path("messages.home.created")
-    public String HOME_CREATED = "%prefix%&#86f0d9You've set a home &7(%home%)";
+    public String HOME_CREATED = "%prefix%&fYou've set a home &7(%home%)";
+
     @Path("messages.home.deleted")
-    public String HOME_DELETED = "%prefix%&#88a865You've deleted a home &7(%home%)";
-    @Path("messages.home.limit-reached")
-    public String HOME_LIMIT = "%prefix%&#8b5ba5You've reached your limit of %limit% homes";
+    public String HOME_DELETED = "%prefix%&#ff4d4dYou've deleted a home &7(%home%)";
+
     @Path("messages.home.teleported")
-    public String HOME_TELEPORTED = "%prefix%&#3fcb4aYou've teleported to your home %home%";
-    @Path("messages.home.unknown")
-    public String HOME_UNKNOWN = "%prefix%&#ab85e1Couldn't find a home called %home%";
+    public String HOME_TELEPORTED = "%prefix%&#ffd966You've teleported to your home &f%home%";
+
     @Path("messages.home.already-set")
-    public String HOME_ALREADY_SET = "%prefix%&#ab6bceYou've already a home called %home%!";
+    public String HOME_ALREADY_SET = "%prefix%&#ffaa00You've already a home called %home%!";
+
     @Path("messages.home.reloaded")
-    public String HOME_RELOADED = "%prefix%&#85bc36You've reloaded the configurations!";
+    public String HOME_RELOADED = "%prefix%&#a3cf62You've reloaded the configurations!";
+
+    @Path("messages.home.cooldown")
+    public String HOME_COOLDOWN = "%prefix%&#ff9966You must wait %cooldown% seconds before using this command again.";
+
+    @Path("messages.home.ask-name")
+    public String HOME_ASK_NAME = "%prefix%&#ffcc00Write the home &f&lNAME &#ffcc00in chat (or type &c'cancel'&7)";
+
+    @Path("messages.home.input-cancelled")
+    public String HOME_INPUT_CANCELLED = "%prefix%&cCreation cancelled.";
+
+    @Path("messages.home.invalid-name")
+    public String HOME_INVALID_NAME = "%prefix%&#ff4d4dInvalid name! Use only alphanumeric characters.";
+
     public static LanguageConfiguration getInstance() {
         if(instance == null) instance = new LanguageConfiguration();
         return instance;

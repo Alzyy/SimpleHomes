@@ -5,7 +5,7 @@ plugins {
 
 description = 'SimpleHomes'
 group = 'it.alzy.simplehomes'
-version = '1.1'
+version = '1.3'
 
 repositories {
     mavenCentral()
@@ -22,13 +22,13 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     implementation 'com.github.NaTorOG:SimpleConfig:1.0.6'
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
     implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
     implementation "com.zaxxer:HikariCP:7.0.0"
-    implementation "dev.triumphteam:triumph-gui:3.1.11"
+    implementation "dev.triumphteam:triumph-gui:3.1.13"
     compileOnly("com.mojang:authlib:1.5.25")
 }
  
@@ -64,7 +64,13 @@ shadowJar {
     minimize()
     mergeServiceFiles()
     archiveFileName = "${project.description}.jar"
+
     relocate 'co.aikar.commands', 'it.alzy.simplehomes.libs.acf'
     relocate 'co.aikar.locales', 'it.alzy.simplehomes.libs.locales'
-    relocate("dev.triumphteam.gui", "it.alzy.simplehomes.gui")
+    relocate 'dev.triumphteam.gui', 'it.alzy.simplehomes.libs.gui'
+
+    relocate 'com.zaxxer.hikari', 'it.alzy.simplehomes.libs.hikari'
+    relocate 'net.pino.simpleconfig', 'it.alzy.simplehomes.libs.config'
+
+    exclude 'net/kyori/**'
 }

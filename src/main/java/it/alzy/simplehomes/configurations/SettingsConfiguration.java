@@ -51,8 +51,8 @@ public class SettingsConfiguration extends LightConfig {
         return this.fileConfiguration.getBoolean("settings.check-for-update", true);
     }
 
-    public boolean isGuiEnabled() {
-        return this.fileConfiguration.getBoolean("gui-settings.enable-gui", true);
+    public int cooldown() {
+        return this.fileConfiguration.getInt("settings.cooldown", 3);
     }
 
     public String getGuiName() {
@@ -74,13 +74,44 @@ public class SettingsConfiguration extends LightConfig {
         return this.fileConfiguration.getString("gui-settings.head.name", "&aHome &7(%homeName%)");
     }
 
-    public String getGuiFiller() {
-        return this.fileConfiguration.getString("gui-settings.gui-filler", "BLACK_STAINED_GLASS");
+    public String getGuiFillerMaterial() {
+        return this.fileConfiguration.getString("gui-settings.gui-filler.material", "BLACK_STAINED_GLASS_PANE");
     }
 
+    public String getGuiFillerName() {
+        return this.fileConfiguration.getString("gui-settings.gui-filler.name", "&7 ");
+    }
 
     public List<String> getHeadLore() {
         return this.fileConfiguration.getStringList("gui-settings.head.lore");
+    }
+
+    public String getSetName() {
+        return this.fileConfiguration.getString("gui-settings.set-home.name", "&#101010Set Home");
+    }
+
+    public String getSetMaterial() {
+        return this.fileConfiguration.getString("gui-settings.set-home.material", "LIME_BED");
+    }
+
+    public List<String> getSetLore() {
+        return this.fileConfiguration.getStringList("gui-settings.set-home.lore");
+    }
+
+    public String getNextMaterial() {
+        return this.fileConfiguration.getString("gui-settings.next-item.material", "ARROW");
+    }
+    public String getNextName() {
+        return this.fileConfiguration.getString("gui-settings.next-item.name", "&aNext");
+    }
+    public String getBackMaterial() {
+        return this.fileConfiguration.getString("gui-settings.back-item.material", "ARROW");
+    }
+    public String getBackName() {
+        return this.fileConfiguration.getString("gui-settings.back-item.name", "&cBack");
+    }
+    public int getGuiRows() {
+        return this.fileConfiguration.getInt("gui-settings.rows", 6);
     }
 
     public static SettingsConfiguration getInstance() {

@@ -1,42 +1,77 @@
 # ─────────────────────────────────────────────────────────────
-# SimpleHomes by AlzyIT v1.0
-# Configuration file for the home system
+#             🏠 SimpleHomes by AlzyIT v1.3 🏠
+#       Advanced, Lightweight & Dynamic Home System
 # ─────────────────────────────────────────────────────────────
 
-# General plugin settings
+# General Plugin Settings
 settings:
-  max-thread-pool: 2               # Maximum number of threads used by the system
-  storage-type: SQLITE             # Available options: SQLITE or MYSQL
-  check-for-update: true          # Automatically check for plugin updates
+  # Maximum threads used for asynchronous tasks (DB/Cache)
+  max-thread-pool: 2
+  # Storage method. Options: [SQLITE, MYSQL]
+  storage-type: SQLITE
+  # Automatically check for updates on SpigotMC
+  check-for-update: true
+  # Cooldown between home commands (in seconds)
+  cooldown: 3
 
-# Database settings (used only if storage-type is MYSQL)
+# Database Settings (Only required if storage-type is MYSQL)
 database:
-  host: "localhost"                # MySQL server address
-  port: 3306                       # MySQL server port
-  username: "root"                 # MySQL username
-  password: "CHANGEME"             # MySQL password (change this!)
-  database: simplehomes            # Name of the database to use
-  max-pool: 10                     # Maximum number of connections in the pool
+  host: "localhost"
+  port: 3306
+  username: "root"
+  password: "CHANGEME"
+  database: "simplehomes"
+  # Maximum number of active connections in the pool
+  max-pool: 10
 
-
+# Graphical Interface Customization
 gui-settings:
-  # Title of the GUI menu - shows the player's name and "Homes"
-  gui-title: "&e%player%'ѕ &fʜᴏᴍᴇѕ"
-  
-  # Player head textures for each environment
+  # Title of the GUI. Supports MiniMessage and %player% placeholder
+  gui-title: "<gradient:#ffcc00:#ffd966><bold>%player%'ѕ ʜᴏᴍᴇѕ</bold></gradient>"
+
+  # Number of GUI rows (Range: 2-6)
+  # Items and navigation will automatically adjust to this height.
+  rows: 3
+
+  # Custom textures (Base64) for home heads based on the world
   overworld-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTU3N2M0ZGUxZjUxYTcwNzIyMDIzZTg1NmI1NDNjZDU3MGYxZDBlZTZiOWQxNjdiNTkwMjhjZTFiYzkyZTQ1OCJ9fX0="
   nether-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTljNmEzNzhhNzJkYTE3NTgzMWM5Mzk0ZmE0NWViNzM0M2YzMWQ3ZDA1OGZhNzZhOWE2NDZiZTAwN2I3ODg4ZCJ9fX0="
   end-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWQxZjM4MjI2MmRiNmUxYTVjMDk1MDQ5Zjk5YTk5NDZmMDg3ZjdkNzgyYzFjYTI1ZDA4NzNlYmY1NjdlNzliZSJ9fX0="
-  
+
+  # Navigation Button Customization
+  next-item:
+    name: "<#ffcc00>Next Page »"
+    material: ARROW
+  back-item:
+    name: "<#ffcc00>« Previous Page"
+    material: ARROW
+
+  # Decoration (Filler) for the control rows
+  gui-filler:
+    name: " "
+    material: GRAY_STAINED_GLASS_PANE
+
+  # Settings for saved home icons
   head:
-    # Display name of each home icon in the menu
-    name: "&#a870f7&lʜᴏᴍᴇ &8| &f%homeName%"
-    
-    # Lore = description text shown when hovering over the head
+    name: "<#ffcc00><bold>ʜᴏᴍᴇ</bold> <dark_gray>» <white>%homeName%"
     lore:
-      - "&#6a4c93&l• &7ᴘᴏsɪᴛɪᴏɴ: &f%x%, %y%, %z%"
-      - "&#098ebb&l• &7ᴡᴏʀʟᴅ: &f%world%"
-      - "&#cd6e0f&l• &7ᴇɴᴠɪʀᴏɴᴍᴇɴᴛ: &f%worldEnvironment%"
-      - "" # Empty line for spacing
-      - "&#1e6595&l⮞ &aʟᴇꜰᴛ-ᴄʟɪᴄᴋ &7to teleport"
-      - "&#84374b&l⮞ &cʀɪɢʜᴛ-ᴄʟɪᴄᴋ &7to delete"
+      - ""
+      - "&#ffd966● <gray>Coordinates: <white>%x%, %y%, %z%"
+      - "&#ffd966● <gray>World: <white>%world%"
+      - "&#ffd966● <gray>Dimension: <white>%worldEnvironment%"
+      - ""
+      - "&#ffcc00➜ <white>Left-Click <gray>to teleport"
+      - "&#ff4d4d➜ <white>Right-Click <gray>to delete"
+
+  # Button used to create a new home
+  set-home:
+    name: "<#ffcc00><bold>✚ SET HOME</bold>"
+    material: LIME_BED
+    lore:
+      - ""
+      - "<gray>Click to register a new home at"
+      - "<gray>your current location."
+      - ""
+      - "<dark_gray>» <gray>Available Slot: <white>#%n%"
+      - ""
+      - "&#ff9966⚠ <italic>You will be asked for a name in chat!</italic>"
