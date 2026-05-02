@@ -7,6 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 
 import it.alzy.simplehomes.SimpleHomes;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListeners implements Listener {
 
@@ -14,9 +16,14 @@ public class PlayerListeners implements Listener {
 
     @EventHandler
     public void asyncPlayerJoin(AsyncPlayerPreLoginEvent ev) {
-        final UUID uuid = ev.getPlayerProfile().getId();
+        final UUID uuid = ev.getUniqueId();
 
-        plugin.getLogger().info(String.format("Loading player %s into cache ", ev.getPlayerProfile().getName()));
+        plugin.getLogger().info(String.format("Loading player %s into cache ", ev.getName()));
         plugin.getStorage().load(uuid);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent ev) {
+        plugin.getCache().remove(ev.getPlayer().getUniqueId());
     }
 }

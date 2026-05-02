@@ -21,4 +21,6 @@ public class Cache {
     public List<Home> get(UUID uuid) {
         return cacheMap.get(uuid);
     }
+
+    public void remove(UUID uuid) { cacheMap.remove(uuid);}
 }

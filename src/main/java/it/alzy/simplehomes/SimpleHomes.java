@@ -13,6 +13,7 @@ import it.alzy.simplehomes.storage.impl.SQLiteStorage;
 import it.alzy.simplehomes.utils.UpdateUtils;
 import lombok.Getter;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -41,9 +42,21 @@ public class SimpleHomes extends JavaPlugin {
 
     private PaperCommandManager commandManager;
 
+    @Getter
+    private boolean isPaper = false;
+
+    @Getter
+    private BukkitAudiences bukkitAudiences;
+
     @Override
     public void onEnable() {
         instance = this;
+
+        checkPaper();
+
+        if(!isPaper) {
+            this.bukkitAudiences = BukkitAudiences.create(this);
+        }
 
         // Initialize configs
         loadConfigurations();
@@ -71,6 +84,7 @@ public class SimpleHomes extends JavaPlugin {
             new UpdateUtils().checkForUpdates();
         }
 
+
         // Initialize utils
         homeKey = new NamespacedKey(this, "homeName");
     }
@@ -79,6 +93,15 @@ public class SimpleHomes extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
     }
 
+    private void checkPaper() {
+        try {
+            Class.forName("com.destroystokyo.paper.PaperConfig");
+            isPaper = true;
+        } catch (ClassNotFoundException e) {
+            getLogger().info("Paper API not detected, running in Spigot/Bukkit mode.");
+            isPaper = false;
+        }
+    }
     private boolean validateInitialConfig() {
         SettingsConfiguration settings = SettingsConfiguration.getInstance();
 

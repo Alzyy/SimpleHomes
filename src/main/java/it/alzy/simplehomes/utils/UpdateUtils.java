@@ -57,11 +57,11 @@ public class UpdateUtils {
                 return;
             }
 
-            if (!plugin.getPluginMeta().getVersion().equalsIgnoreCase(latestVersion)) {
+            if (!plugin.getDescription().getVersion().equalsIgnoreCase(latestVersion)) {
                 plugin.getLogger().warning("\n" +
                         "============================================\n" +
                         "  ⚠️  A new version of SimpleHomes is available!\n" +
-                        "  Current version : " + plugin.getPluginMeta().getVersion() + "\n" +
+                        "  Current version : " + plugin.getDescription().getVersion() + "\n" +
                         "  Latest version  : " + latestVersion + "\n" +
                         "  ➜ Download it at:\n" +
                         "    https://www.spigotmc.org/resources/simplehomes.127559/\n" +
